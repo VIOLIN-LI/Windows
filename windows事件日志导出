@@ -1,0 +1,45 @@
+```bash
+Param(
+  [DateTime]$date = (Get-Date).AddHours(-1)
+#当前时间前一个小时
+)
+
+#$date = Get-date "2017-07-01 00:00:00"
+#post 接口
+$uri = 'http://family.123u.com/api/family_user_ip_pc_info.php'
+$filePath = 'c:\NewCSVObject.csv'
+
+#$Events = Get-WinEvent -FilterHashtable @{Logname='Security';Id=4624;StartTime=$date} -MaxEvents 1000 | Sort-Object TimeCreated
+$Events = Get-WinEvent -FilterHashtable @{Logname='Security';Id=4624;StartTime=$date} | Sort-Object TimeCreated
+
+$NewCSVObject = @{}
+
+# Parse out the event message data           
+ForEach ($Event in $Events) {
+    $psObject = New-Object psobject
+
+    #$Event| Select TimeCreated|Format-List *
+    # Convert the event to XML           
+    $eventXML = [xml]$Event.ToXml()           
+    # Iterate through each one of the XML message properties           
+    foreach ($attr in $eventXML.Event.EventData.Data) {
+        if($attr.name -eq "TargetUserName") {
+            $u_name = $attr.’#text’
+            #Add-Member -InputObject $psobject -Force -MemberType noteproperty -Name "TargetUserName" -Value $attr.’#text’
+        }
+        if($attr.name -eq "IpAddress") {
+            $u_ip = $attr.’#text’
+            #Add-Member -InputObject $psobject -Force -MemberType noteproperty -Name "IpAddress" -Value $attr.’#text’
+        }       
+    }
+    if ($u_ip -like "192.168.*") {
+        $NewCSVObject[$u_name] = $u_ip
+        #$NewCSVObject += $psObject
+    }
+}
+$NewCSVObject.GetEnumerator() | Sort-Object Name
+$NewCSVObject.GetEnumerator() | Sort-Object Name | Select-Object Name,Value | Export-Csv $filePath
+
+#把本地文件传送到post接口上
+Invoke-RestMethod -Uri $uri -Method Post -InFile $filePath -ContentType "multipart/form-data"
+```
