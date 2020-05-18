@@ -6,7 +6,7 @@ Param(
 
 #$date = Get-date "2017-07-01 00:00:00"
 #post 接口
-$uri = 'http://family.123u.com/api/family_user_ip_pc_info.php'
+$uri = 'http://domain/api/family_user_ip_pc_info.php'
 $filePath = 'c:\NewCSVObject.csv'
 
 #$Events = Get-WinEvent -FilterHashtable @{Logname='Security';Id=4624;StartTime=$date} -MaxEvents 1000 | Sort-Object TimeCreated
