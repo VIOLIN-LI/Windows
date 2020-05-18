@@ -1,4 +1,3 @@
-```bash
 Param(
   [DateTime]$date = (Get-Date).AddHours(-1)
 #当前时间前一个小时
@@ -42,4 +41,4 @@ $NewCSVObject.GetEnumerator() | Sort-Object Name | Select-Object Name,Value | Ex
 
 #把本地文件传送到post接口上
 Invoke-RestMethod -Uri $uri -Method Post -InFile $filePath -ContentType "multipart/form-data"
-```
+
